@@ -86,6 +86,18 @@ function co(gen) {
     }
 
     /**
+     * @param {Object} value
+     * @return {Promise}
+     * @api private
+     */
+
+    function onUnknownType(value) {
+		return onRejected(new TypeError('You may only yield a function, promise, generator, array, or object, '
+        + 'but the following object was passed: "' + String(value) + '"'));
+    }
+
+
+    /**
      * Get the next value in the generator,
      * return a promise.
      *
@@ -98,8 +110,7 @@ function co(gen) {
       if (ret.done) return resolve(ret.value);
       var value = toPromise.call(ctx, ret.value);
       if (value && isPromise(value)) return value.then(onFulfilled, onRejected);
-      return onRejected(new TypeError('You may only yield a function, promise, generator, array, or object, '
-        + 'but the following object was passed: "' + String(ret.value) + '"'));
+      return onUnknownType(ret.value);
     }
   });
 }
